@@ -16,13 +16,18 @@ function App() {
   ])
 
   const createPost = (newPost) => {
-    setPosts([...post, newPost])
+    setPosts([...posts, newPost])
+  }
+
+  //получаем пост из дочернего компорнента
+  const removePost = (post) => {
+    setPosts (posts.filter(p => p.id !==post.id))
   }
 
   return (
     <div className="App">
       <PostForm create = {createPost}/>
-      <PostList posts = {posts} title = "список постов 1"/>
+      <PostList remove = {removePost} posts = {posts} title = "список постов 1"/>
     </div>
   );
 
