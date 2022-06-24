@@ -1,5 +1,6 @@
 import axios from "axios";
-import React, { useMemo, useRef, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
+import PostService from "./API/PostService";
 import ClassCounter from "./components/ClassCounter";
 import Counter from "./components/counter";
 import PostFilter from "./components/PostFilter";
@@ -8,6 +9,7 @@ import PostItem from "./components/PostItem";
 import PostList from "./components/PostList";
 import MyButton from "./components/UI/button/MyButton";
 import MyInput from "./components/UI/input/MyInput";
+import Loader from "./components/UI/Loader/Loader";
 import MyModal from "./components/UI/MyModal/MyModal";
 import MySelect from "./components/UI/select/MySelect";
 import { usePosts } from "./hooks/usePost";
@@ -18,6 +20,11 @@ function App() {
   const [filter, setFilter] = useState ({sort: '', query: ''})
   const [modal, setModal] = useState (false);
   const sortedAndSearchedPosts = usePosts (posts, filter.sort, filter.query);
+  const [isPostsLoading, setIsPostsLoading] = useState (false);
+
+  useEffect ( () => {
+    fetchPosts ()
+  }, [])
 
   const createPost = (newPost) => {
     setPosts ([...posts, newPost])
@@ -25,8 +32,12 @@ function App() {
   }
 
   async function fetchPosts () {
-    const response = await axios.get('https://jsonplaceholder.typicode.com/posts')
-    setPosts (response.data)
+    setIsPostsLoading (true);
+    setTimeout (async () => {
+      const posts = await PostService.getAll();
+      setPosts (posts)
+      setIsPostsLoading (false);
+    }, 1000)
   }
 
   //получаем пост из дочернего компорнента
@@ -48,7 +59,10 @@ function App() {
         filter = {filter}
         setFilter = {setFilter}
       />
-      <PostList remove = {removePost} posts = {sortedAndSearchedPosts} title = "список постов 1"/>
+      {isPostsLoading
+        ? <div style = {{display: 'flex', justifyContent: 'center', marginTop: 50}}><Loader/></div>
+        : <PostList remove = {removePost} posts = {sortedAndSearchedPosts} title = "список постов 1"/>
+      }
     </div>
   );
 
